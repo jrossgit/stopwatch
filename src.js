@@ -14,10 +14,10 @@ function splitToTimer(totalSeconds) {
 }
 
 // DOM Interaction ////////////////////////////
-startbutton = document.getElementById('start_timer');
-stopbutton = document.getElementById('stop_timer');
+startStopButton = document.getElementById('start_stop');
 timerInterval = null;
 console.log(timerInterval);
+
 function updatePageTime(seconds) {
   timer = splitToTimer(seconds);
 	['hours', 'minutes', 'seconds'].forEach(function(id) {
@@ -25,18 +25,20 @@ function updatePageTime(seconds) {
   })
 }
 
-startbutton.onclick = function() {
-	timerInterval = setInterval(function(){
+startStopButton.onclick = function() {
+  if (!timerInterval) {
+  timerInterval = setInterval(function() {
     seconds += 1;
     updatePageTime(seconds);
-  }, 1000)
+    }, 1000)
   console.log(timerInterval);
-};
-
-stopbutton.onclick = function() {
+  }
+  else {
 	clearInterval(timerInterval);
-console.log(timerInterval);
-}
+    timerInterval = null;    
+  }
+  
+};
 
 // Testing /////////
 var seconds = 0;
