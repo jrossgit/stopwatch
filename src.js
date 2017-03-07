@@ -41,11 +41,9 @@ var timeSubdivisions = function (milliseconds, subdivision) {
     return Math.floor(milliseconds / subdivision);
 };
 
-var msToSeconds = function (milliseconds) { return Math.floor(milliseconds); };
-
 var durationToObject = function (milliseconds) {
     var output = [1000 * 60 * 60, 1000 * 60, 1000].map(function (time) { return (timeSubdivisions(milliseconds, time)); });
-    return {hours: output[0], minutes: output[1], seconds: output[2]};
+    return {hours: output[0], minutes: output[1] % 60, seconds: output[2] % 60};
 };
 
 function zeroPad2dp(number) {
