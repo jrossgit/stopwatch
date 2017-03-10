@@ -2,36 +2,39 @@
 var Timer = (function () {
     function Timer() {
         this.startTime = new Date();
-        this.stopTime = this.startTime;
+        this.stoppedElapsed = 0;
         this.running = false;
-    }
-    Timer.prototype.start_stop = function() {
+    };
+    Timer.prototype.startStop = function() {
         this.running ? this.stop() : this.start();
     };
     Timer.prototype.start = function () {
         this.startTime = new Date();
         this.running = true;
     };
-    Timer.prototype.split = function () {
-        return timeSubdivisions(this.getTimeMs(), 1000);
+    Timer.prototype.splitReset = function () {
+        if (this.running) {return getTimeMs()}
+        else {
+            this.reset();
+            return 0;
+        }
+    };
+    Timer.prototype.reset = function () {
+        this.running = false;
+        this.stoppedElapsed = 0;
     };
     Timer.prototype.stop = function () {
         this.stoppedElapsed = this.getTimeMs();
-        this.stopTime = new Date();
-        this.running = false;
-        return this.stoppedElapsed;
-    };
-    Timer.prototype.reset = function () {
         this.running = false;
     };
     Timer.prototype.getTimeMs = function () {
         if (this.running) {
             var timeNow = new Date();
+            return timeNow - this.startTime + this.stoppedElapsed;
         }
         else {
-            var timeNow = this.stopTime;
+            return this.stoppedElapsed;
         }
-        return timeNow - this.startTime;
     };
     return Timer;
 }());
@@ -56,6 +59,7 @@ function zeroPad2dp(number) {
 
 // DOM Interaction ////////////////////////////
 var startStopButton = document.getElementById('timer__start_stop');
+var splitResetButton = document.getElementById('timer__split_reset');
 var mainTimer = new Timer;
 console.log(mainTimer);
 timerInterval = setInterval(function() {
@@ -70,7 +74,11 @@ function updatePageTime(timer) {
 }
 
 startStopButton.onclick = function() {
-  mainTimer.start_stop();
+  mainTimer.startStop();
+};
+
+splitResetButton.onclick = function() {
+  mainTimer.splitReset();
 };
 
 // Testing /////////
