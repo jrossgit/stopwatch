@@ -13,7 +13,7 @@ var Timer = (function () {
         this.running = true;
     };
     Timer.prototype.splitReset = function () {
-        if (this.running) {return getTimeMs()}
+        if (this.running) {return this.getTimeMs()}
         else {
             this.reset();
             return 0;
@@ -49,6 +49,11 @@ var durationToObject = function (milliseconds) {
     return {hours: output[0], minutes: output[1] % 60, seconds: output[2] % 60};
 };
 
+var durationToString = function (milliseconds) {
+  var time = durationToObject(milliseconds);
+  return zeroPad2dp(time.hours) + ":" + zeroPad2dp(time.minutes) + ":" + zeroPad2dp(time.seconds);
+}
+
 function zeroPad2dp(number) {
 	if (number < 10) {
   	return '0' + number.toString();
@@ -58,10 +63,10 @@ function zeroPad2dp(number) {
 
 
 // DOM Interaction ////////////////////////////
-var startStopButton = document.getElementById('timer__start_stop');
-var splitResetButton = document.getElementById('timer__split_reset');
+var startStopButton = document.querySelector('#timer__start_stop');
+var splitResetButton = document.querySelector('#timer__split_reset');
 var mainTimer = new Timer;
-console.log(mainTimer);
+
 timerInterval = setInterval(function() {
     updatePageTime(mainTimer);
   }, 100);
@@ -73,14 +78,21 @@ function updatePageTime(timer) {
   })
 }
 
+function addTimerSplit(mainTimer) {
+  var splitDiv = document.querySelector('#splits');
+  var split = document.createElement('li');
+  split.textContent = durationToString(mainTimer.getTimeMs());
+  splitDiv.appendChild(split);
+}
+
 startStopButton.onclick = function() {
   mainTimer.startStop();
 };
 
 splitResetButton.onclick = function() {
-  mainTimer.splitReset();
+  addTimerSplit(mainTimer);
 };
 
-// Testing /////////
+// Initialize page /////////
 var seconds = 0;
 updatePageTime(mainTimer);
