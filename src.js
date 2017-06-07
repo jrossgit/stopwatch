@@ -2,6 +2,7 @@
 var Timer = (function () {
     function Timer() {
         this.startTime = new Date();
+        this.splitStartTime = new Date();
         this.stoppedElapsed = 0;
         this.running = false;
     };
@@ -10,14 +11,16 @@ var Timer = (function () {
     };
     Timer.prototype.start = function () {
         this.startTime = new Date();
+        this.splitStartTime = this.startTime;
         this.running = true;
     };
     Timer.prototype.splitReset = function () {
-        if (this.running) {return this.getTimeMs()}
-        else {
-            this.reset();
-            return 0;
+        if (!this.running) {
+          this.reset();
         }
+        var preState = this.state();
+        this.splitStartTime = new Date();
+        return preState;
     };
     Timer.prototype.reset = function () {
         this.running = false;
@@ -36,6 +39,17 @@ var Timer = (function () {
             return this.stoppedElapsed;
         }
     };
+    Timer.prototype.getSplitTimeMs = function () {
+      var timeNow = new Date();
+      return timeNow - this.splitStartTime + this.stoppedElapsed;
+    };
+    Timer.prototype.state = function () {
+      return {
+        running: this.running,
+        time: this.getTimeMs(),
+        splitTime: this.getSplitTimeMs()
+      }
+    }
     return Timer;
 }());
 
@@ -61,28 +75,44 @@ function zeroPad2dp(number) {
   else return number.toString();
 }
 
-
 // DOM Interaction ////////////////////////////
 var startStopButton = document.querySelector('#timer__start_stop');
 var splitResetButton = document.querySelector('#timer__split_reset');
 var mainTimer = new Timer;
 
 timerInterval = setInterval(function() {
-    updatePageTime(mainTimer);
+    updatePageTime(mainTimer.state());
   }, 100);
 
-function updatePageTime(timer) {
-  var timerDisplay = durationToObject(timer.getTimeMs());
+function constructTableRow(tag, cells) {
+  var row = document.createElement('tr');
+  cells.forEach( function(i) {
+    var cell = document.createElement(tag);
+    cell.textContent = i;
+    row.appendChild(cell);
+  });
+  return row;
+}
+
+/// DOM UPDATING FUNCTIONS /////////
+function clearNode(node) {
+  while (node.firstChild) {
+      node.removeChild(node.firstChild);
+  }
+}
+
+function updatePageTime(timerState) {
+  var timerDisplay = durationToObject(timerState.time);
 	['hours', 'minutes', 'seconds'].forEach(function(id) {
   	document.getElementById('timer__' + id).textContent = zeroPad2dp(timerDisplay[id]);
   })
 }
 
-function addTimerSplit(mainTimer) {
-  var splitDiv = document.querySelector('#splits');
-  var split = document.createElement('li');
-  split.textContent = durationToString(mainTimer.getTimeMs());
-  splitDiv.appendChild(split);
+function addTimerSplit(timerState, node) {
+  var rowContent = [durationToString(timerState.time), durationToString(timerState.splitTime)];
+
+  var split = constructTableRow('td', rowContent);
+  node.appendChild(split);
 }
 
 startStopButton.onclick = function() {
@@ -90,7 +120,12 @@ startStopButton.onclick = function() {
 };
 
 splitResetButton.onclick = function() {
-  addTimerSplit(mainTimer);
+  var state = mainTimer.splitReset();
+  if (state.running) {
+    addTimerSplit(state, document.querySelector('#splits'));
+  } else {
+    clearNode(document.querySelector('#splits'));
+  }
 };
 
 // Initialize page /////////

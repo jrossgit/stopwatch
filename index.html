@@ -7,19 +7,24 @@
 </head>
 
 <body>
-<div class="timer_display">
-<span id="timer__hours"></span>:<span id="timer__minutes"></span>:<span id="timer__seconds"></span>
-</div>
+<div class="timer">
+  <div class="timer_display">
+    <span id="timer__hours"></span>:<span id="timer__minutes"></span>:<span id="timer__seconds"></span>
+  </div>
 
-<div class="timer_controls">
-<button id="timer__start_stop">Start/Stop</button><button id="timer__split_reset">Split/Reset</button>
-</div>
+  <div class="timer_controls">
+    <button id="timer__start_stop">Start/Stop</button><button id="timer__split_reset">Split/Reset</button>
+  </div>
 
-<div class="timer_splits">
-  <ul id="splits"></ul>
-</div>
+  <div>
+    <p>SPLITS</p>
+  </div>
+  <div class="timer_splits" style="overflow:scroll;">
+    <table id="splits"></table>
+  </div>
 
-<script src="src.js"></script>
+  <script src="src.js"></script>
+</div>
 </body>
 
 </html>
